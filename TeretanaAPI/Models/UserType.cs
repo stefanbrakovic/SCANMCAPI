@@ -7,7 +7,7 @@ namespace TeretanaAPI.Models
 {
     public class UserType
     {
-        private int userTypeId;
+        //private int userTypeId;
 
         public int UserTypeId
         {
