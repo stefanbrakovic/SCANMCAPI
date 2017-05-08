@@ -1,0 +1,13 @@
+﻿Install Entity Framework
+To use EF Core, install the package for the database provider(s) you want to target. This walkthrough uses SQL Server. For a list of available providers see Database Providers.1
+Tools -> NuGet Package Manager -> Package Manager Console
+Run Install-Package Microsoft.EntityFrameworkCore.SqlServer
+1
+We will be using some Entity Framework Tools to create a model from the database. So we will install the tools package as well.
+Run Install-Package Microsoft.EntityFrameworkCore.Tools
+Run Install-Package Microsoft.EntityFrameworkCore.SqlServer.Design
+Reverse engineer your model
+Now it's time to create the EF model based on your existing database.
+Tools –> NuGet Package Manager –> Package Manager Console
+Run the following command to create a model from the existing database. If you receive an error stating The term 'Scaffold-DbContext' is not recognized as the name of a cmdlet, then close and reopen Visual Studio.
+Scaffold-DbContext "Server=(localdb)\mssqllocaldb;Database=Blogging;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
