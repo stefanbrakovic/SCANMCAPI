@@ -10,4 +10,4 @@ Reverse engineer your model
 Now it's time to create the EF model based on your existing database.
 Tools –> NuGet Package Manager –> Package Manager Console
 Run the following command to create a model from the existing database. If you receive an error stating The term 'Scaffold-DbContext' is not recognized as the name of a cmdlet, then close and reopen Visual Studio.
-Scaffold-DbContext "Server=(localdb)\mssqllocaldb;Database=Blogging;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+Scaffold-DbContext "Server=DESKTOP-V0D3HC8;Database=Teretana;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
