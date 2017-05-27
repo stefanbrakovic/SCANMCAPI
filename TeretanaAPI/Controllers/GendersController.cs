@@ -10,59 +10,57 @@ using TeretanaAPI.Models;
 namespace TeretanaAPI.Controllers
 {
     [Produces("application/json")]
-    [Route("api/UserTypes")]
-    public class UserTypesController : Controller
+    [Route("api/Genders")]
+    public class GendersController : Controller
     {
         private readonly TeretanaContext _context;
 
-        public UserTypesController(TeretanaContext context)
+        public GendersController(TeretanaContext context)
         {
             _context = context;
         }
 
-        // GET: api/UserTypes
+        // GET: api/Genders
         [HttpGet]
-        public IEnumerable<UserTypes> GetUserTypes()
+        public IEnumerable<Genders> GetGenders()
         {
-            var userTypes = _context.Set<UserTypes>().FromSql("dbo.sp_get_all_UserTypes @ErrorCode = {0}, @ErrorMessage = {1}", 0, "");
-            return userTypes;
-            //return _context.UserTypes;
+            return _context.Genders;
         }
 
-        // GET: api/UserTypes/5
+        // GET: api/Genders/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserTypes([FromRoute] int id)
+        public async Task<IActionResult> GetGenders([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var userTypes = await _context.UserTypes.SingleOrDefaultAsync(m => m.UserTypeId == id);
+            var genders = await _context.Genders.SingleOrDefaultAsync(m => m.GenderId == id);
 
-            if (userTypes == null)
+            if (genders == null)
             {
                 return NotFound();
             }
 
-            return Ok(userTypes);
+            return Ok(genders);
         }
 
-        // PUT: api/UserTypes/5
+        // PUT: api/Genders/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserTypes([FromRoute] int id, [FromBody] UserTypes userTypes)
+        public async Task<IActionResult> PutGenders([FromRoute] int id, [FromBody] Genders genders)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != userTypes.UserTypeId)
+            if (id != genders.GenderId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(userTypes).State = EntityState.Modified;
+            _context.Entry(genders).State = EntityState.Modified;
 
             try
             {
@@ -70,7 +68,7 @@ namespace TeretanaAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserTypesExists(id))
+                if (!GendersExists(id))
                 {
                     return NotFound();
                 }
@@ -83,45 +81,45 @@ namespace TeretanaAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/UserTypes
+        // POST: api/Genders
         [HttpPost]
-        public async Task<IActionResult> PostUserTypes([FromBody] UserTypes userTypes)
+        public async Task<IActionResult> PostGenders([FromBody] Genders genders)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            _context.UserTypes.Add(userTypes);
+            _context.Genders.Add(genders);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUserTypes", new { id = userTypes.UserTypeId }, userTypes);
+            return CreatedAtAction("GetGenders", new { id = genders.GenderId }, genders);
         }
 
-        // DELETE: api/UserTypes/5
+        // DELETE: api/Genders/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserTypes([FromRoute] int id)
+        public async Task<IActionResult> DeleteGenders([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var userTypes = await _context.UserTypes.SingleOrDefaultAsync(m => m.UserTypeId == id);
-            if (userTypes == null)
+            var genders = await _context.Genders.SingleOrDefaultAsync(m => m.GenderId == id);
+            if (genders == null)
             {
                 return NotFound();
             }
 
-            _context.UserTypes.Remove(userTypes);
+            _context.Genders.Remove(genders);
             await _context.SaveChangesAsync();
 
-            return Ok(userTypes);
+            return Ok(genders);
         }
 
-        private bool UserTypesExists(int id)
+        private bool GendersExists(int id)
         {
-            return _context.UserTypes.Any(e => e.UserTypeId == id);
+            return _context.Genders.Any(e => e.GenderId == id);
         }
     }
 }

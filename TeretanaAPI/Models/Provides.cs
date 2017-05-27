@@ -12,5 +12,6 @@ namespace TeretanaAPI.Models
         public DateTime DateTo { get; set; }
 
         public virtual Services Service { get; set; }
+        public virtual Users User { get; set; }
     }
 }

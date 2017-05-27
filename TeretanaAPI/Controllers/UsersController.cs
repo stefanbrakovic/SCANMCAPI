@@ -10,59 +10,57 @@ using TeretanaAPI.Models;
 namespace TeretanaAPI.Controllers
 {
     [Produces("application/json")]
-    [Route("api/UserTypes")]
-    public class UserTypesController : Controller
+    [Route("api/Users")]
+    public class UsersController : Controller
     {
         private readonly TeretanaContext _context;
 
-        public UserTypesController(TeretanaContext context)
+        public UsersController(TeretanaContext context)
         {
             _context = context;
         }
 
-        // GET: api/UserTypes
+        // GET: api/Users
         [HttpGet]
-        public IEnumerable<UserTypes> GetUserTypes()
+        public IEnumerable<Users> GetUsers()
         {
-            var userTypes = _context.Set<UserTypes>().FromSql("dbo.sp_get_all_UserTypes @ErrorCode = {0}, @ErrorMessage = {1}", 0, "");
-            return userTypes;
-            //return _context.UserTypes;
+            return _context.Users;
         }
 
-        // GET: api/UserTypes/5
+        // GET: api/Users/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserTypes([FromRoute] int id)
+        public async Task<IActionResult> GetUsers([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var userTypes = await _context.UserTypes.SingleOrDefaultAsync(m => m.UserTypeId == id);
+            var users = await _context.Users.SingleOrDefaultAsync(m => m.UserId == id);
 
-            if (userTypes == null)
+            if (users == null)
             {
                 return NotFound();
             }
 
-            return Ok(userTypes);
+            return Ok(users);
         }
 
-        // PUT: api/UserTypes/5
+        // PUT: api/Users/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserTypes([FromRoute] int id, [FromBody] UserTypes userTypes)
+        public async Task<IActionResult> PutUsers([FromRoute] int id, [FromBody] Users users)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != userTypes.UserTypeId)
+            if (id != users.UserId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(userTypes).State = EntityState.Modified;
+            _context.Entry(users).State = EntityState.Modified;
 
             try
             {
@@ -70,7 +68,7 @@ namespace TeretanaAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserTypesExists(id))
+                if (!UsersExists(id))
                 {
                     return NotFound();
                 }
@@ -83,45 +81,45 @@ namespace TeretanaAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/UserTypes
+        // POST: api/Users
         [HttpPost]
-        public async Task<IActionResult> PostUserTypes([FromBody] UserTypes userTypes)
+        public async Task<IActionResult> PostUsers([FromBody] Users users)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            _context.UserTypes.Add(userTypes);
+            _context.Users.Add(users);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUserTypes", new { id = userTypes.UserTypeId }, userTypes);
+            return CreatedAtAction("GetUsers", new { id = users.UserId }, users);
         }
 
-        // DELETE: api/UserTypes/5
+        // DELETE: api/Users/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserTypes([FromRoute] int id)
+        public async Task<IActionResult> DeleteUsers([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var userTypes = await _context.UserTypes.SingleOrDefaultAsync(m => m.UserTypeId == id);
-            if (userTypes == null)
+            var users = await _context.Users.SingleOrDefaultAsync(m => m.UserId == id);
+            if (users == null)
             {
                 return NotFound();
             }
 
-            _context.UserTypes.Remove(userTypes);
+            _context.Users.Remove(users);
             await _context.SaveChangesAsync();
 
-            return Ok(userTypes);
+            return Ok(users);
         }
 
-        private bool UserTypesExists(int id)
+        private bool UsersExists(int id)
         {
-            return _context.UserTypes.Any(e => e.UserTypeId == id);
+            return _context.Users.Any(e => e.UserId == id);
         }
     }
 }

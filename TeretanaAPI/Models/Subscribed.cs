@@ -12,5 +12,6 @@ namespace TeretanaAPI.Models
         public int PackageId { get; set; }
 
         public virtual Packages Package { get; set; }
+        public virtual Users User { get; set; }
     }
 }

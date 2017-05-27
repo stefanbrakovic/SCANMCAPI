@@ -32,8 +32,10 @@ namespace TeretanaAPI
             // Add framework services.
             services.AddMvc();
 
-            var connection = @"Server=DESKTOP-V0D3HC8;Database=Teretana;Trusted_Connection=True;";
-            services.AddDbContext<TeretanaContext>(options => options.UseSqlServer(connection));
+            string con =  Configuration.GetConnectionString("Teretana");
+           // var connection = @"Server =DESKTOP-V0D3HC8;Database=Teretana;Trusted_Connection=True;";
+
+            services.AddDbContext<TeretanaContext>(options => options.UseSqlServer(con));
         }
     
 
