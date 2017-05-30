@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeretanaAPI.Models;
+using TeretanaAPI.DataBaseManipulation;
 
 namespace TeretanaAPI.Controllers
 {
@@ -83,38 +84,42 @@ namespace TeretanaAPI.Controllers
 
         // POST: api/Genders
         [HttpPost]
-        public async Task<IActionResult> PostGenders([FromBody] Genders genders)
+        public IActionResult PostGenders([FromBody] Genders genders)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            _context.Genders.Add(genders);
-            await _context.SaveChangesAsync();
+            string spName = "sp_create_Gender";
+            string[] inputParamNames = new string[] { "GenderName" };
+            object[] inputParamValues = new object[] { genders.Gender };
+            string[] outputParamNames = new string[] { "ErrorCode", "ErrorMessage" };
+            object[] outputParamValues = new object[] { 0, "" };
 
-            return CreatedAtAction("GetGenders", new { id = genders.GenderId }, genders);
+            object[] outParams = DataBaseManipulation.DataReaderExtensions.executeStoredProcedure(_context, spName, inputParamNames, inputParamValues, outputParamNames, outputParamValues);
+            JsonResult re = new JsonResult(outputParamValues);
+            return Ok(re);
         }
 
         // DELETE: api/Genders/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteGenders([FromRoute] int id)
+        [HttpDelete("{GenderName}")]
+        public IActionResult DeleteGenders([FromRoute] string GenderName)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var genders = await _context.Genders.SingleOrDefaultAsync(m => m.GenderId == id);
-            if (genders == null)
-            {
-                return NotFound();
-            }
+            string spName = "sp_delete_Gender";
+            string[] inputParamNames = new string[] { "GenderName" };
+            object[] inputParamValues = new object[] { GenderName };
+            string[] outputParamNames = new string[] { "ErrorCode", "ErrorMessage" };
+            object[] outputParamValues = new object[] { 0, "" };
 
-            _context.Genders.Remove(genders);
-            await _context.SaveChangesAsync();
-
-            return Ok(genders);
+            object[] outParams = DataBaseManipulation.DataReaderExtensions.executeStoredProcedure(_context, spName, inputParamNames, inputParamValues, outputParamNames, outputParamValues);
+            JsonResult re = new JsonResult(outputParamValues);
+            return Ok(re);
         }
 
         private bool GendersExists(int id)
