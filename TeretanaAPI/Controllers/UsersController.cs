@@ -6,6 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using TeretanaAPI.DataBaseManipulation;
 using TeretanaAPI.Models;
 
+using MailKit.Net.Smtp;
+using MimeKit;
+using MailKit.Security;
+
 namespace TeretanaAPI.Controllers
 {
     [Produces("application/json")]
@@ -27,18 +31,48 @@ namespace TeretanaAPI.Controllers
         }
 
         // GET: api/Users/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUsers([FromRoute] int id)
+        [HttpGet("{cardNumber}")]
+        public async Task<IActionResult> GetUsers([FromRoute] string cardNumber)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var users = await _context.Users.SingleOrDefaultAsync(m => m.UserId == id);
+            var users = await _context.Users.SingleOrDefaultAsync(m => m.CardNumber == cardNumber);
+            var userProfile = await _context.UserProfile.SingleOrDefaultAsync(m => m.CardNumber == cardNumber);
 
             if (users == null)
                 return NotFound();
 
-            return Ok(users);
+            string email = userProfile.Mail;
+            int numberOfUsedTermins = userProfile.NumberOfUsedTermins;
+            DateTime dateTo = userProfile.DateTo;
+            int numberOfPaidTermins = 12;  //OVOCE SE VEROVATNO ISTO CITATI IZ BAZE
+
+            if (numberOfUsedTermins < numberOfPaidTermins)
+            {
+
+                if (((dateTo - DateTime.Now).TotalDays < 20))  //SAMO DRUGI DEO IF-a CE BTI USLOV KASNIJE
+                {
+                    try
+                    {
+                        SendEmailAsync(email);
+                    }
+                    catch (Exception ex)
+                    {
+
+                        throw;
+                    }
+                }
+
+                return Ok(true);
+            }
+            else
+            {
+                return Ok(false);  //OVAJ DEO NISAM SIGURNA
+            }
+            
+
+           
         }
 
         // PUT: api/Users/5
@@ -99,19 +133,19 @@ namespace TeretanaAPI.Controllers
             //return CreatedAtAction("GetUsers", new { id = users.UserId }, users);
         }
 
-        // DELETE: api/Users/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUsers([FromRoute] int id)
+        // DELETE: api/Users/123456a789s
+        [HttpDelete("{cardNumber}")]
+        public async Task<IActionResult> DeleteUsers([FromRoute] string cardNumber)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var users = await _context.Users.SingleOrDefaultAsync(m => m.UserId == id);
+            var users = await _context.Users.SingleOrDefaultAsync(m => m.CardNumber == cardNumber);
             if (users == null)
                 return NotFound();
 
             _context.Users.Remove(users);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();           
 
             return Ok(users);
         }
@@ -119,6 +153,38 @@ namespace TeretanaAPI.Controllers
         private bool UsersExists(int id)
         {
             return _context.Users.Any(e => e.UserId == id);
+        }
+
+
+        public async Task SendEmailAsync(string email)
+        {
+            try
+            {
+                var emailMessage = new MimeMessage();
+
+                emailMessage.From.Add(new MailboxAddress("Vas TIM TERETANA NFC", "teretananfc@gmail.com"));
+                emailMessage.To.Add(new MailboxAddress(email));
+                emailMessage.Subject = "Vasa kartica uskoro istice";
+                emailMessage.Body = new TextPart("plain") { Text = "Dragi nasi korisnici, produzite svoju karticu!" };
+
+                using (var client = new SmtpClient())
+                {                   
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                    client.Connect("smtp.gmail.com", 587, false);
+
+                    // Note: only needed if the SMTP server requires authentication
+                    client.Authenticate("teretananfc", "test123456");
+
+                    client.Send(emailMessage);
+                    client.Disconnect(true);
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
     }
 }

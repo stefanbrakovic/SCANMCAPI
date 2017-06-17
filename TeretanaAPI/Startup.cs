@@ -35,7 +35,7 @@ namespace TeretanaAPI
             string con =  Configuration.GetConnectionString("Teretana");
            // var connection = @"Server =DESKTOP-V0D3HC8;Database=Teretana;Trusted_Connection=True;";
 
-            services.AddDbContext<TeretanaContext>(options => options.UseSqlServer(con));
+          services.AddDbContext<TeretanaContext>(options => options.UseSqlServer(con));
         }
     
 
