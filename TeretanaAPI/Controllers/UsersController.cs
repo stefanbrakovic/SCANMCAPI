@@ -28,22 +28,24 @@ namespace TeretanaAPI.Controllers
         }
 
         // GET: api/Users/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUsers([FromRoute] int id)
+        [HttpGet("{cardNumber}")]
+        public async Task<IActionResult> GetUsers([FromRoute] string cardNumber)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var users = await _context.Users.SingleOrDefaultAsync(m => m.UserId == id);
+            var users = await _context.Users.SingleOrDefaultAsync(m => m.CardNumber == cardNumber);
 
             if (users == null)
             {
                 return NotFound();
             }
-
-            return Ok(users);
+            string email = users.Mail;
+            
+            //sendEmail(email);
+            return Ok(email);
         }
 
         // PUT: api/Users/5
@@ -106,23 +108,23 @@ namespace TeretanaAPI.Controllers
             //return CreatedAtAction("GetUsers", new { id = users.UserId }, users);
         }
 
-        // DELETE: api/Users/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUsers([FromRoute] int id)
+        // DELETE: api/Users/123456a789s
+        [HttpDelete("{cardNumber}")]
+        public async Task<IActionResult> DeleteUsers([FromRoute] string cardNumber)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var users = await _context.Users.SingleOrDefaultAsync(m => m.UserId == id);
+            var users = await _context.Users.SingleOrDefaultAsync(m => m.CardNumber == cardNumber);
             if (users == null)
             {
                 return NotFound();
             }
 
             _context.Users.Remove(users);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();           
 
             return Ok(users);
         }

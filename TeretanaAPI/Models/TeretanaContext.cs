@@ -13,6 +13,7 @@ namespace TeretanaAPI.Models
         public virtual DbSet<ServicePrice> ServicePrice { get; set; }
         public virtual DbSet<Services> Services { get; set; }
         public virtual DbSet<Subscribed> Subscribed { get; set; }
+        public virtual DbSet<UserProfile> UserProfile { get; set; }
         public virtual DbSet<UserTypes> UserTypes { get; set; }
         public virtual DbSet<Users> Users { get; set; }
         public virtual DbSet<Uses> Uses { get; set; }
@@ -149,6 +150,37 @@ namespace TeretanaAPI.Models
                     .HasConstraintName("FK_Subscribed_Users");
             });
 
+            modelBuilder.Entity<UserProfile>(entity =>
+            {
+                entity.HasIndex(e => e.CardNumber)
+                    .HasName("UQ__UserProf__A4E9FFE9B1A6D882")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Mail)
+                    .HasName("UQ__UserProfile")
+                    .IsUnique();
+
+                entity.Property(e => e.CardNumber)
+                    .IsRequired()
+                    .HasMaxLength(256);
+
+                entity.Property(e => e.DateOfRegistration).HasColumnType("datetime");
+
+                entity.Property(e => e.FirstName)
+                    .IsRequired()
+                    .HasMaxLength(30);
+
+                entity.Property(e => e.LastName)
+                    .IsRequired()
+                    .HasMaxLength(40);
+
+                entity.Property(e => e.Mail)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Telephone).HasMaxLength(25);
+            });
+
             modelBuilder.Entity<UserTypes>(entity =>
             {
                 entity.HasKey(e => e.UserTypeId)
@@ -224,5 +256,4 @@ namespace TeretanaAPI.Models
             });
         }
     }
-
 }
