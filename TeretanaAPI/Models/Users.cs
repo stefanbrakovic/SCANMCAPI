@@ -25,6 +25,7 @@ namespace TeretanaAPI.Models
         public string Street { get; set; }
         public string City { get; set; }
         public string StreetNumber { get; set; }
+        public string CardNumber { get; set; }
 
         public virtual ICollection<Provides> Provides { get; set; }
         public virtual ICollection<Subscribed> Subscribed { get; set; }

@@ -20,7 +20,7 @@ namespace TeretanaAPI.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-            optionsBuilder.UseSqlServer(@"Server=DESKTOP-V0D3HC8;Database=Teretana;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer(@"Server=DESKTOP-7P9Q534;Database=Teretana;Trusted_Connection=True;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -51,7 +51,7 @@ namespace TeretanaAPI.Models
             modelBuilder.Entity<Packages>(entity =>
             {
                 entity.HasKey(e => e.PackageId)
-                    .HasName("PK__Packages__322035CCFDD78633");
+                    .HasName("PK__Packages__322035CC28ECDB8F");
 
                 entity.Property(e => e.DateCreated)
                     .HasColumnType("datetime")
@@ -166,9 +166,17 @@ namespace TeretanaAPI.Models
                 entity.HasKey(e => e.UserId)
                     .HasName("PK__Users__1788CC4C027D74C6");
 
+                entity.HasIndex(e => e.CardNumber)
+                    .HasName("UQ__Users__4CD3FAA21917D4A3")
+                    .IsUnique();
+
                 entity.HasIndex(e => e.Mail)
                     .HasName("UQ__Users__2724B2D16C5A912B")
                     .IsUnique();
+
+                entity.Property(e => e.CardNumber)
+                    .IsRequired()
+                    .HasMaxLength(256);
 
                 entity.Property(e => e.City).HasMaxLength(50);
 
@@ -202,7 +210,7 @@ namespace TeretanaAPI.Models
             modelBuilder.Entity<Uses>(entity =>
             {
                 entity.HasKey(e => e.UsageId)
-                    .HasName("PK__Uses__29B197208A2CB3BC");
+                    .HasName("PK__Uses__29B197203CA8E4DB");
 
                 entity.Property(e => e.DateFrom).HasColumnType("datetime");
 
