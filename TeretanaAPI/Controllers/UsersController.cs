@@ -47,22 +47,37 @@ namespace TeretanaAPI.Controllers
             {
                 return NotFound();
             }
+
             string email = userProfile.Mail;
             int numberOfUsedTermins = userProfile.NumberOfUsedTermins;
-            if(numberOfUsedTermins < 8)
+            DateTime dateTo = userProfile.DateTo;
+            int numberOfPaidTermins = 12;  //OVOCE SE VEROVATNO ISTO CITATI IZ BAZE
+
+            if (numberOfUsedTermins < numberOfPaidTermins)
             {
-                try
-                {
-                    SendEmailAsync(email);
-                }
-                catch (Exception ex)
-                {
 
-                    throw;
+                if (((dateTo - DateTime.Now).TotalDays < 20))  //SAMO DRUGI DEO IF-a CE BTI USLOV KASNIJE
+                {
+                    try
+                    {
+                        SendEmailAsync(email);
+                    }
+                    catch (Exception ex)
+                    {
+
+                        throw;
+                    }
                 }
+
+                return Ok(true);
             }
+            else
+            {
+                return Ok(false);  //OVAJ DEO NISAM SIGURNA
+            }
+            
 
-            return Ok(numberOfUsedTermins);
+           
         }
 
         // PUT: api/Users/5
@@ -164,18 +179,9 @@ namespace TeretanaAPI.Controllers
                 emailMessage.Body = new TextPart("plain") { Text = "Dragi nasi korisnici, produzite svoju karticu!" };
 
                 using (var client = new SmtpClient())
-                {
-                    //client.LocalDomain = "some.domain.com";
-                    //await client.ConnectAsync("smtp.relay.uri", 25, SecureSocketOptions.None).ConfigureAwait(false);
-                    //await client.SendAsync(emailMessage).ConfigureAwait(false);
-                    //await client.DisconnectAsync(true).ConfigureAwait(false);
+                {                   
                     client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-
                     client.Connect("smtp.gmail.com", 587, false);
-
-                    // Note: since we don't have an OAuth2 token, disable
-                    // the XOAUTH2 authentication mechanism.
-                    //client.AuthenticationMechanisms.Remove("XOAUTH2");
 
                     // Note: only needed if the SMTP server requires authentication
                     client.Authenticate("teretananfc", "test123456");
