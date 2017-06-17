@@ -83,17 +83,27 @@ namespace TeretanaAPI.Controllers
 
         // POST: api/Users
         [HttpPost]
-        public async Task<IActionResult> PostUsers([FromBody] Users users)
+        public IActionResult PostUsers([FromBody] Users users)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            _context.Users.Add(users);
-            await _context.SaveChangesAsync();
+            string spName = "sp_create_new_User";
+            string[] inputParamNames = new string[] { "FirstName", "LastName", "Telephone", "Mail", "UserPassword", "UserTypeId", "GenderId", "DateOfBirth", "Street", "City", "StreetNumber" };
+            object[] inputParamValues = new object[] {users.FirstName, users.LastName, users.Telephone, users.Mail, users.UserPassword, users.UserTypeId, users.GenderId, users.DateOfBirth,users.Street, users.City, users.StreetNumber};
+            string[] outputParamNames = new string[] { "ErrorCode", "ErrorMessage" };
+            object[] outputParamValues = new object[] { 0, "" };
 
-            return CreatedAtAction("GetUsers", new { id = users.UserId }, users);
+            object[] outParams = DataBaseManipulation.DataReaderExtensions.executeStoredProcedure(_context, spName, inputParamNames, inputParamValues, outputParamNames, outputParamValues);
+            JsonResult re = new JsonResult(outputParamValues);
+            return Ok(re);
+
+            //_context.Users.Add(users);
+            //await _context.SaveChangesAsync();
+
+            //return CreatedAtAction("GetUsers", new { id = users.UserId }, users);
         }
 
         // DELETE: api/Users/5

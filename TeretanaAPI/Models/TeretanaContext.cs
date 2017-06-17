@@ -224,4 +224,5 @@ namespace TeretanaAPI.Models
             });
         }
     }
+
 }
