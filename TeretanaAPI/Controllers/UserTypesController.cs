@@ -1,14 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TeretanaAPI.DataBaseManipulation;
 using TeretanaAPI.Models;
-using System.Data.Common;
-using System.Data.SqlClient;
-using System.Data;
 
 namespace TeretanaAPI.Controllers
 {
@@ -40,21 +36,16 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> GetUserTypes([FromRoute] string TypeName)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
             //var userTypes = _context.Set<UserTypes>().FromSql(@"EXEC [dbo].[sp_get_UserTypeDescription_by_TypeName] @TypeName = {0}, @ErrorCode = {1} OUTPUT, @ErrorMessage = {2} OUTPUT",TypeName,0,"");//"dbo.sp_get_UserTypeDescription_by_TypeName @TypeName = {0}, @TypeDescription = {1} OUTPUT, @ErrorCode = {2} OUTPUT, @ErrorMessage = {3} OUTPUT", TypeName, TypeDescription, 0, "");
 
             //string userDescription = userTypes.FirstOrDefault().TypeDescription;
-             var userTypes = await _context.UserTypes.SingleOrDefaultAsync(m => m.TypeName == TypeName);
+            var userTypes = await _context.UserTypes.SingleOrDefaultAsync(m => m.TypeName == TypeName);
 
             if (userTypes == null)
-            {
                 return NotFound();
-            }
             return Ok(userTypes);
         }
-
 
 
         // PUT: api/UserTypes/5
@@ -62,14 +53,10 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> PutUserTypes([FromRoute] int id, [FromBody] UserTypes userTypes)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != userTypes.UserTypeId)
-            {
                 return BadRequest();
-            }
 
             _context.Entry(userTypes).State = EntityState.Modified;
 
@@ -80,13 +67,8 @@ namespace TeretanaAPI.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!UserTypesExists(id))
-                {
                     return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -97,9 +79,8 @@ namespace TeretanaAPI.Controllers
         public IActionResult PostUserTypes([FromBody] UserTypes userTypes)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
+
             #region old code
 
             //string ErrorMessage = "";
@@ -144,15 +125,18 @@ namespace TeretanaAPI.Controllers
             //        return Ok(ErrorCode);
             //    }
             //}
-#endregion
-            string spName = "sp_create_new_UserType";
-            string[] inputParamNames = new string[] { "TypeName", "TypeDescription" };
-            object[] inputParamValues = new object[] { userTypes.TypeName, userTypes.TypeDescription };
-            string[] outputParamNames = new string[] { "ErrorCode", "ErrorMessage" };
-            object[] outputParamValues = new object[] { 0, "" };
-          
-            object[] outParams = DataBaseManipulation.DataReaderExtensions.executeStoredProcedure(_context, spName, inputParamNames, inputParamValues, outputParamNames, outputParamValues);
-            JsonResult re = new JsonResult(outputParamValues);
+
+            #endregion
+
+            var spName = "sp_create_new_UserType";
+            string[] inputParamNames = {"TypeName", "TypeDescription"};
+            object[] inputParamValues = {userTypes.TypeName, userTypes.TypeDescription};
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
+
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, spName, inputParamNames,
+                inputParamValues, outputParamNames, outputParamValues);
+            var re = new JsonResult(outputParamValues);
             return Ok(re);
             // return CreatedAtAction("GetUserTypes", new { id = userTypes.UserTypeId }, userTypes);
         }
@@ -162,10 +146,10 @@ namespace TeretanaAPI.Controllers
         public IActionResult DeleteUserTypes([FromRoute] string TypeName)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
+
             #region old code
+
             //var userTypes = await _context.UserTypes.All<UserTypes>(m => m.TypeName.Equals(TypeName));// SingleOrDefaultAsync(m => m.TypeName.Equals(TypeName));
             //if (userTypes == null)
             //{
@@ -203,20 +187,22 @@ namespace TeretanaAPI.Controllers
 
             //    }
             //}
-            #endregion
-            string spName = "sp_delete_UserType_by_TypeName";
-            string[] inputParamNames = new string[] { "TypeName" };
-            object[] inputParamValues = new object[] { TypeName };
-            string[] outputParamNames = new string[] { "ErrorCode", "ErrorMessage" };
-            object[] outputParamValues = new object[] { 0, "" };
-            outputParamValues = DataBaseManipulation.DataReaderExtensions.executeStoredProcedure(_context, spName, inputParamNames, inputParamValues, outputParamNames, outputParamValues);
 
-            JsonResult re = new JsonResult(outputParamValues);
-       
+            #endregion
+
+            var spName = "sp_delete_UserType_by_TypeName";
+            string[] inputParamNames = {"TypeName"};
+            object[] inputParamValues = {TypeName};
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
+            outputParamValues = DataReaderExtensions.ExecuteStoredProcedure(_context, spName, inputParamNames,
+                inputParamValues, outputParamNames, outputParamValues);
+
+            var re = new JsonResult(outputParamValues);
+
             return Ok(re);
         }
 
-       
 
         private bool UserTypesExists(int id)
         {

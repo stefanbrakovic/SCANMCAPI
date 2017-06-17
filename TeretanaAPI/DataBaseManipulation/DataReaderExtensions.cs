@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using System.Data.Common;
-using System.Reflection;
-using System.Data.SqlClient;
 using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 
 namespace TeretanaAPI.DataBaseManipulation
 {
@@ -24,19 +23,17 @@ namespace TeretanaAPI.DataBaseManipulation
 
                 while (dr.Read())
                 {
-                    T newObject = new T();
-                    for (int index = 0; index < dr.FieldCount; index++)
-                    {
+                    var newObject = new T();
+                    for (var index = 0; index < dr.FieldCount; index++)
                         if (propDict.ContainsKey(dr.GetName(index).ToUpper()))
                         {
                             var info = propDict[dr.GetName(index).ToUpper()];
-                            if ((info != null) && info.CanWrite)
+                            if (info != null && info.CanWrite)
                             {
                                 var val = dr.GetValue(index);
-                                info.SetValue(newObject, (val == DBNull.Value) ? null : val, null);
+                                info.SetValue(newObject, val == DBNull.Value ? null : val, null);
                             }
                         }
-                    }
                     entities.Add(newObject);
                 }
                 return entities;
@@ -44,41 +41,39 @@ namespace TeretanaAPI.DataBaseManipulation
             return null;
         }
 
-        public static object[] executeStoredProcedure(DbContext context, string spName, string[] inputParamNames, object[] inputParamValues, string[] outputParamNames, object[] outputParamValues)
+        public static object[] ExecuteStoredProcedure(DbContext context, string spName, string[] inputParamNames,
+            object[] inputParamValues, string[] outputParamNames, object[] outputParamValues)
         {
-            SqlParameter[] dbOutputParamsValues = new SqlParameter[outputParamValues.Length];
+            var dbOutputParamsValues = new SqlParameter[outputParamValues.Length];
 
             using (context)
             {
                 using (context.Database.GetDbConnection())
                 {
                     context.Database.OpenConnection();
-                    DbCommand cmd = context.Database.GetDbConnection().CreateCommand();
+                    var cmd = context.Database.GetDbConnection().CreateCommand();
                     cmd.CommandText = spName;
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    for (int i = 0; i < inputParamNames.Length; i++)
-                    {
+                    for (var i = 0; i < inputParamNames.Length; i++)
                         cmd.Parameters.Add(new SqlParameter(inputParamNames[i], inputParamValues[i]));
-                    }
-                    for (int i = 0; i < outputParamNames.Length; i++)
+                    for (var i = 0; i < outputParamNames.Length; i++)
                     {
-                        dbOutputParamsValues[i] = new SqlParameter(outputParamNames[i], SqlDbType.NVarChar,600, outputParamValues[i].ToString()) { Direction = ParameterDirection.Output };
+                        dbOutputParamsValues[i] =
+                            new SqlParameter(outputParamNames[i], SqlDbType.NVarChar, 600,
+                                outputParamValues[i].ToString()) {Direction = ParameterDirection.Output};
                         cmd.Parameters.Add(dbOutputParamsValues[i]);
                     }
 
-                    List<object> tasks;
                     using (var reader = cmd.ExecuteReader())
                     {
-                        tasks = DataBaseManipulation.DataReaderExtensions.MapToList<object>(reader);
+                        MapToList<object>(reader);
                     }
 
-                    for (int i = 0; i < dbOutputParamsValues.Length; i++)
-                    {
-                        outputParamValues[i] = string.IsNullOrEmpty(dbOutputParamsValues[i].Value.ToString()) ? outputParamValues[i] : dbOutputParamsValues[i].Value;
-                    }
-
-
+                    for (var i = 0; i < dbOutputParamsValues.Length; i++)
+                        outputParamValues[i] = string.IsNullOrEmpty(dbOutputParamsValues[i].Value.ToString())
+                            ? outputParamValues[i]
+                            : dbOutputParamsValues[i].Value;
                 }
             }
             return outputParamValues;

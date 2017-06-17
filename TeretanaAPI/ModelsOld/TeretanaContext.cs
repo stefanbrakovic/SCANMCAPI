@@ -92,8 +92,10 @@ namespace TeretanaAPI.Models
 
             modelBuilder.Entity<ServicePrice>(entity =>
             {
-                entity.HasKey(e => e.PriceId)
-                    .HasName("PK_ServicePrice_1");
+                entity.HasKey(e => e.ServiceId)
+                    .HasName("PK_ServicePrice");
+
+                entity.Property(e => e.ServiceId).ValueGeneratedNever();
 
                 entity.Property(e => e.DateModified)
                     .HasColumnType("datetime")
@@ -102,8 +104,8 @@ namespace TeretanaAPI.Models
                 entity.Property(e => e.Price).HasColumnType("decimal");
 
                 entity.HasOne(d => d.Service)
-                    .WithMany(p => p.ServicePrice)
-                    .HasForeignKey(d => d.ServiceId)
+                    .WithOne(p => p.ServicePrice)
+                    .HasForeignKey<ServicePrice>(d => d.ServiceId)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK_ServicePrice_Services");
             });
@@ -214,4 +216,5 @@ namespace TeretanaAPI.Models
             });
         }
     }
+
 }

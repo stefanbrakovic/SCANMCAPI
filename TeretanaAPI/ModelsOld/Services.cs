@@ -8,7 +8,6 @@ namespace TeretanaAPI.Models
         public Services()
         {
             Provides = new HashSet<Provides>();
-            ServicePrice = new HashSet<ServicePrice>();
         }
 
         public int ServiceId { get; set; }
@@ -18,6 +17,6 @@ namespace TeretanaAPI.Models
         public DateTime? DateCreated { get; set; }
 
         public virtual ICollection<Provides> Provides { get; set; }
-        public virtual ICollection<ServicePrice> ServicePrice { get; set; }
+        public virtual ServicePrice ServicePrice { get; set; }
     }
 }

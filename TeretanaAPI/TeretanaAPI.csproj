@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ModelsOld\**" />
+    <Content Remove="ModelsOld\**" />
+    <EmbeddedResource Remove="ModelsOld\**" />
+    <None Remove="ModelsOld\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>

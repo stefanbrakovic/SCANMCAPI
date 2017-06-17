@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TeretanaAPI.DataBaseManipulation;
 using TeretanaAPI.Models;
 
 namespace TeretanaAPI.Controllers
@@ -32,16 +31,12 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> GetUsers([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var users = await _context.Users.SingleOrDefaultAsync(m => m.UserId == id);
 
             if (users == null)
-            {
                 return NotFound();
-            }
 
             return Ok(users);
         }
@@ -51,14 +46,10 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> PutUsers([FromRoute] int id, [FromBody] Users users)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != users.UserId)
-            {
                 return BadRequest();
-            }
 
             _context.Entry(users).State = EntityState.Modified;
 
@@ -69,13 +60,8 @@ namespace TeretanaAPI.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!UsersExists(id))
-                {
                     return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -86,18 +72,25 @@ namespace TeretanaAPI.Controllers
         public IActionResult PostUsers([FromBody] Users users)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            string spName = "sp_create_new_User";
-            string[] inputParamNames = new string[] { "FirstName", "LastName", "Telephone", "Mail", "UserPassword", "UserTypeId", "GenderId", "DateOfBirth", "Street", "City", "StreetNumber" };
-            object[] inputParamValues = new object[] {users.FirstName, users.LastName, users.Telephone, users.Mail, users.UserPassword, users.UserTypeId, users.GenderId, users.DateOfBirth,users.Street, users.City, users.StreetNumber};
-            string[] outputParamNames = new string[] { "ErrorCode", "ErrorMessage" };
-            object[] outputParamValues = new object[] { 0, "" };
+            var spName = "sp_create_new_User";
+            string[] inputParamNames =
+            {
+                "FirstName", "LastName", "Telephone", "Mail", "UserPassword", "UserTypeId", "GenderId", "DateOfBirth",
+                "Street", "City", "StreetNumber"
+            };
+            object[] inputParamValues =
+            {
+                users.FirstName, users.LastName, users.Telephone, users.Mail, users.UserPassword, users.UserTypeId,
+                users.GenderId, users.DateOfBirth, users.Street, users.City, users.StreetNumber
+            };
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
 
-            object[] outParams = DataBaseManipulation.DataReaderExtensions.executeStoredProcedure(_context, spName, inputParamNames, inputParamValues, outputParamNames, outputParamValues);
-            JsonResult re = new JsonResult(outputParamValues);
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, spName, inputParamNames,
+                inputParamValues, outputParamNames, outputParamValues);
+            var re = new JsonResult(outputParamValues);
             return Ok(re);
 
             //_context.Users.Add(users);
@@ -111,15 +104,11 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> DeleteUsers([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var users = await _context.Users.SingleOrDefaultAsync(m => m.UserId == id);
             if (users == null)
-            {
                 return NotFound();
-            }
 
             _context.Users.Remove(users);
             await _context.SaveChangesAsync();

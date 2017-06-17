@@ -1,12 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TeretanaAPI.Models;
 using TeretanaAPI.DataBaseManipulation;
+using TeretanaAPI.Models;
 
 namespace TeretanaAPI.Controllers
 {
@@ -33,16 +31,12 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> GetGenders([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var genders = await _context.Genders.SingleOrDefaultAsync(m => m.GenderId == id);
 
             if (genders == null)
-            {
                 return NotFound();
-            }
 
             return Ok(genders);
         }
@@ -52,14 +46,10 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> PutGenders([FromRoute] int id, [FromBody] Genders genders)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != genders.GenderId)
-            {
                 return BadRequest();
-            }
 
             _context.Entry(genders).State = EntityState.Modified;
 
@@ -70,13 +60,8 @@ namespace TeretanaAPI.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!GendersExists(id))
-                {
                     return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -87,18 +72,17 @@ namespace TeretanaAPI.Controllers
         public IActionResult PostGenders([FromBody] Genders genders)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            string spName = "sp_create_Gender";
-            string[] inputParamNames = new string[] { "GenderName" };
-            object[] inputParamValues = new object[] { genders.Gender };
-            string[] outputParamNames = new string[] { "ErrorCode", "ErrorMessage" };
-            object[] outputParamValues = new object[] { 0, "" };
+            var spName = "sp_create_Gender";
+            string[] inputParamNames = {"GenderName"};
+            object[] inputParamValues = {genders.Gender};
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
 
-            object[] outParams = DataBaseManipulation.DataReaderExtensions.executeStoredProcedure(_context, spName, inputParamNames, inputParamValues, outputParamNames, outputParamValues);
-            JsonResult re = new JsonResult(outputParamValues);
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, spName, inputParamNames,
+                inputParamValues, outputParamNames, outputParamValues);
+            var re = new JsonResult(outputParamValues);
             return Ok(re);
         }
 
@@ -107,18 +91,17 @@ namespace TeretanaAPI.Controllers
         public IActionResult DeleteGenders([FromRoute] string GenderName)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            string spName = "sp_delete_Gender";
-            string[] inputParamNames = new string[] { "GenderName" };
-            object[] inputParamValues = new object[] { GenderName };
-            string[] outputParamNames = new string[] { "ErrorCode", "ErrorMessage" };
-            object[] outputParamValues = new object[] { 0, "" };
+            var spName = "sp_delete_Gender";
+            string[] inputParamNames = {"GenderName"};
+            object[] inputParamValues = {GenderName};
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
 
-            object[] outParams = DataBaseManipulation.DataReaderExtensions.executeStoredProcedure(_context, spName, inputParamNames, inputParamValues, outputParamNames, outputParamValues);
-            JsonResult re = new JsonResult(outputParamValues);
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, spName, inputParamNames,
+                inputParamValues, outputParamNames, outputParamValues);
+            var re = new JsonResult(outputParamValues);
             return Ok(re);
         }
 
