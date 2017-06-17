@@ -15,5 +15,7 @@ namespace TeretanaAPI.Models
         public int UserTypeId { get; set; }
         public DateTime? DateOfRegistration { get; set; }
         public string CardNumber { get; set; }
+        public DateTime? DateFrom { get; set; }
+        public DateTime? DateTo { get; set; }
     }
 }

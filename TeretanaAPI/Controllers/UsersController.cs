@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeretanaAPI.Models;
 
+using MailKit.Net.Smtp;
+using MimeKit;
+using MailKit.Security;
+
 namespace TeretanaAPI.Controllers
 {
     [Produces("application/json")]
@@ -37,15 +41,28 @@ namespace TeretanaAPI.Controllers
             }
 
             var users = await _context.Users.SingleOrDefaultAsync(m => m.CardNumber == cardNumber);
+            var userProfile = await _context.UserProfile.SingleOrDefaultAsync(m => m.CardNumber == cardNumber);
 
             if (users == null)
             {
                 return NotFound();
             }
-            string email = users.Mail;
-            
-            //sendEmail(email);
-            return Ok(email);
+            string email = userProfile.Mail;
+            int numberOfUsedTermins = userProfile.NumberOfUsedTermins;
+            if(numberOfUsedTermins < 8)
+            {
+                try
+                {
+                    SendEmailAsync(email);
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
+            }
+
+            return Ok(numberOfUsedTermins);
         }
 
         // PUT: api/Users/5
@@ -132,6 +149,47 @@ namespace TeretanaAPI.Controllers
         private bool UsersExists(int id)
         {
             return _context.Users.Any(e => e.UserId == id);
+        }
+
+
+        public async Task SendEmailAsync(string email)
+        {
+            try
+            {
+                var emailMessage = new MimeMessage();
+
+                emailMessage.From.Add(new MailboxAddress("Vas TIM TERETANA NFC", "teretananfc@gmail.com"));
+                emailMessage.To.Add(new MailboxAddress(email));
+                emailMessage.Subject = "Vasa kartica uskoro istice";
+                emailMessage.Body = new TextPart("plain") { Text = "Dragi nasi korisnici, produzite svoju karticu!" };
+
+                using (var client = new SmtpClient())
+                {
+                    //client.LocalDomain = "some.domain.com";
+                    //await client.ConnectAsync("smtp.relay.uri", 25, SecureSocketOptions.None).ConfigureAwait(false);
+                    //await client.SendAsync(emailMessage).ConfigureAwait(false);
+                    //await client.DisconnectAsync(true).ConfigureAwait(false);
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+
+                    client.Connect("smtp.gmail.com", 587, false);
+
+                    // Note: since we don't have an OAuth2 token, disable
+                    // the XOAUTH2 authentication mechanism.
+                    //client.AuthenticationMechanisms.Remove("XOAUTH2");
+
+                    // Note: only needed if the SMTP server requires authentication
+                    client.Authenticate("teretananfc", "test123456");
+
+                    client.Send(emailMessage);
+                    client.Disconnect(true);
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
     }
 }

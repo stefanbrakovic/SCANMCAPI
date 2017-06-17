@@ -164,7 +164,11 @@ namespace TeretanaAPI.Models
                     .IsRequired()
                     .HasMaxLength(256);
 
+                entity.Property(e => e.DateFrom).HasColumnType("datetime");
+
                 entity.Property(e => e.DateOfRegistration).HasColumnType("datetime");
+
+                entity.Property(e => e.DateTo).HasColumnType("datetime");
 
                 entity.Property(e => e.FirstName)
                     .IsRequired()
