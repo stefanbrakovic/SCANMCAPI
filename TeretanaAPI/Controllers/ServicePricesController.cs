@@ -1,10 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TeretanaAPI.Constants;
+using TeretanaAPI.DataBaseManipulation;
 using TeretanaAPI.Models;
 
 namespace TeretanaAPI.Controllers
@@ -32,53 +33,64 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> GetServicePrice([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var servicePrice = await _context.ServicePrice.SingleOrDefaultAsync(m => m.ServiceId == id);
 
             if (servicePrice == null)
-            {
                 return NotFound();
-            }
 
             return Ok(servicePrice);
         }
 
         // PUT: api/ServicePrices/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutServicePrice([FromRoute] int id, [FromBody] ServicePrice servicePrice)
+        public IActionResult PutServicePrice([FromRoute] int id, [FromBody] ServicePrice servicePrice)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != servicePrice.ServiceId)
-            {
                 return BadRequest();
-            }
 
-            _context.Entry(servicePrice).State = EntityState.Modified;
 
-            try
+            string[] inputParamNames =
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
+                "ServiceId", "Price"
+            };
+            object[] inputParamValues =
             {
-                if (!ServicePriceExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                id, servicePrice.Price
+            };
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
 
-            return NoContent();
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context,
+                StoredProcedureNames.UpdateServicePrice, inputParamNames,
+                inputParamValues, outputParamNames, outputParamValues);
+            var re = new JsonResult(outputParamValues);
+            return Ok(re);
+
+
+            //_context.Entry(servicePrice).State = EntityState.Modified;
+
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!ServicePriceExists(id))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
+
+            //return NoContent();
         }
 
         // POST: api/ServicePrices
@@ -86,9 +98,7 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> PostServicePrice([FromBody] ServicePrice servicePrice)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             _context.ServicePrice.Add(servicePrice);
             try
@@ -98,16 +108,11 @@ namespace TeretanaAPI.Controllers
             catch (DbUpdateException)
             {
                 if (ServicePriceExists(servicePrice.ServiceId))
-                {
                     return new StatusCodeResult(StatusCodes.Status409Conflict);
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
-            return CreatedAtAction("GetServicePrice", new { id = servicePrice.ServiceId }, servicePrice);
+            return CreatedAtAction("GetServicePrice", new {id = servicePrice.ServiceId}, servicePrice);
         }
 
         // DELETE: api/ServicePrices/5
@@ -115,15 +120,11 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> DeleteServicePrice([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var servicePrice = await _context.ServicePrice.SingleOrDefaultAsync(m => m.ServiceId == id);
             if (servicePrice == null)
-            {
                 return NotFound();
-            }
 
             _context.ServicePrice.Remove(servicePrice);
             await _context.SaveChangesAsync();

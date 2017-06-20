@@ -1,10 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TeretanaAPI.Constants;
+using TeretanaAPI.DataBaseManipulation;
 using TeretanaAPI.Models;
 
 namespace TeretanaAPI.Controllers
@@ -32,16 +32,12 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> GetSubscribed([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            var subscribed = await _context.Subscribed.SingleOrDefaultAsync(m => m.SubscribedId == id);
+            var subscribed = await _context.Subscribed.SingleOrDefaultAsync(m => m.UserId == id);
 
             if (subscribed == null)
-            {
                 return NotFound();
-            }
 
             return Ok(subscribed);
         }
@@ -51,14 +47,10 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> PutSubscribed([FromRoute] int id, [FromBody] Subscribed subscribed)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != subscribed.SubscribedId)
-            {
                 return BadRequest();
-            }
 
             _context.Entry(subscribed).State = EntityState.Modified;
 
@@ -69,13 +61,8 @@ namespace TeretanaAPI.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!SubscribedExists(id))
-                {
                     return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -86,28 +73,45 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> PostSubscribed([FromBody] Subscribed subscribed)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            _context.Subscribed.Add(subscribed);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (SubscribedExists(subscribed.SubscribedId))
-                {
-                    return new StatusCodeResult(StatusCodes.Status409Conflict);
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return CreatedAtAction("GetSubscribed", new { id = subscribed.SubscribedId }, subscribed);
+            string[] inputParamNames =
+            {
+                "UserId", "PackageId", "DateFrom", "DateTo"
+            };
+            object[] inputParamValues =
+            {
+                subscribed.UserId, subscribed.PackageId, subscribed.DateFrom, subscribed.DateTo
+            };
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
+
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context,
+                StoredProcedureNames.CreateNewSubscription, inputParamNames,
+                inputParamValues, outputParamNames, outputParamValues);
+            var re = new JsonResult(outputParamValues);
+            return Ok(re);
+
+
+            //_context.Subscribed.Add(subscribed);
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateException)
+            //{
+            //    if (SubscribedExists(subscribed.SubscribedId))
+            //    {
+            //        return new StatusCodeResult(StatusCodes.Status409Conflict);
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
+
+            //return CreatedAtAction("GetSubscribed", new { id = subscribed.SubscribedId }, subscribed);
         }
 
         // DELETE: api/Subscribeds/5
@@ -115,15 +119,11 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> DeleteSubscribed([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var subscribed = await _context.Subscribed.SingleOrDefaultAsync(m => m.SubscribedId == id);
             if (subscribed == null)
-            {
                 return NotFound();
-            }
 
             _context.Subscribed.Remove(subscribed);
             await _context.SaveChangesAsync();

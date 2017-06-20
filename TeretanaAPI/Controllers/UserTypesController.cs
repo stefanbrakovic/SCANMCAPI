@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TeretanaAPI.Constants;
 using TeretanaAPI.DataBaseManipulation;
 using TeretanaAPI.Models;
 
@@ -58,20 +59,39 @@ namespace TeretanaAPI.Controllers
             if (id != userTypes.UserTypeId)
                 return BadRequest();
 
-            _context.Entry(userTypes).State = EntityState.Modified;
 
-            try
+            string[] inputParamNames =
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
+                "TypeId", "TypeName", "TypeDescription"
+            };
+            object[] inputParamValues =
             {
-                if (!UserTypesExists(id))
-                    return NotFound();
-                throw;
-            }
+                id, userTypes.TypeName, userTypes.TypeDescription
+            };
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
 
-            return NoContent();
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context,
+                StoredProcedureNames.UpdateUserTypeById, inputParamNames,
+                inputParamValues, outputParamNames, outputParamValues);
+            var re = new JsonResult(outputParamValues);
+            return Ok(re);
+
+
+            //_context.Entry(userTypes).State = EntityState.Modified;
+
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!UserTypesExists(id))
+            //        return NotFound();
+            //    throw;
+            //}
+
+            //return NoContent();
         }
 
         // POST: api/UserTypes

@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace TeretanaAPI.Models
 {
-    public partial class Subscribed
+    public class Subscribed
     {
         public int SubscribedId { get; set; }
         public DateTime DateFrom { get; set; }

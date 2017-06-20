@@ -1,14 +1,14 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
+using TeretanaAPI.Constants;
 using TeretanaAPI.DataBaseManipulation;
 using TeretanaAPI.Models;
-
-using MailKit.Net.Smtp;
-using MimeKit;
-using MailKit.Security;
 
 namespace TeretanaAPI.Controllers
 {
@@ -43,62 +43,73 @@ namespace TeretanaAPI.Controllers
             if (users == null)
                 return NotFound();
 
-            string email = userProfile.Mail;
-            int numberOfUsedTermins = userProfile.NumberOfUsedTermins;
-            DateTime dateTo = userProfile.DateTo;
-            int numberOfPaidTermins = 12;  //OVOCE SE VEROVATNO ISTO CITATI IZ BAZE
+            var email = userProfile.Mail;
+            var numberOfUsedTermins = userProfile.NumberOfUsedTermins;
+            var dateTo = userProfile.DateTo;
+            var numberOfPaidTermins = 12; //OVOCE SE VEROVATNO ISTO CITATI IZ BAZE
 
             if (numberOfUsedTermins < numberOfPaidTermins)
             {
-
-                if (((dateTo - DateTime.Now).TotalDays < 20))  //SAMO DRUGI DEO IF-a CE BTI USLOV KASNIJE
-                {
+                if ((dateTo - DateTime.Now).TotalDays < 20) //SAMO DRUGI DEO IF-a CE BTI USLOV KASNIJE
                     try
                     {
-                        SendEmailAsync(email);
+                        SendEmail(email);
                     }
                     catch (Exception ex)
                     {
-
                         throw;
                     }
-                }
 
                 return Ok(true);
             }
-            else
-            {
-                return Ok(false);  //OVAJ DEO NISAM SIGURNA
-            }
-            
-
-           
+            return Ok(false); //OVAJ DEO NISAM SIGURNA
         }
 
         // PUT: api/Users/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUsers([FromRoute] int id, [FromBody] Users users)
+        public IActionResult PutUsers([FromRoute] string userMail, [FromBody] Users users)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (id != users.UserId)
+            if (userMail != users.Mail)
                 return BadRequest();
 
-            _context.Entry(users).State = EntityState.Modified;
 
-            try
+            string[] inputParamNames =
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
+                "FirstName", "LastName", "Telephone", "Mail", "UserTypeId", "GenderId", "DateOfBirth", "Street", "City",
+                "StreetNumber"
+            };
+            object[] inputParamValues =
             {
-                if (!UsersExists(id))
-                    return NotFound();
-                throw;
-            }
+                users.FirstName, users.LastName, users.Telephone, users.Mail, users.UserTypeId, users.GenderId,
+                users.DateOfBirth, users.Street, users.City, users.StreetNumber
+            };
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
 
-            return NoContent();
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, StoredProcedureNames.UpdateUserByMail,
+                inputParamNames,
+                inputParamValues, outputParamNames, outputParamValues);
+            var re = new JsonResult(outputParamValues);
+            return Ok(re);
+
+
+            //_context.Entry(users).State = EntityState.Modified;
+
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!UsersExists(id))
+            //        return NotFound();
+            //    throw;
+            //}
+
+            //return NoContent();
         }
 
         // POST: api/Users
@@ -145,7 +156,7 @@ namespace TeretanaAPI.Controllers
                 return NotFound();
 
             _context.Users.Remove(users);
-            await _context.SaveChangesAsync();           
+            await _context.SaveChangesAsync();
 
             return Ok(users);
         }
@@ -156,7 +167,7 @@ namespace TeretanaAPI.Controllers
         }
 
 
-        public async Task SendEmailAsync(string email)
+        private void SendEmail(string email)
         {
             try
             {
@@ -165,10 +176,10 @@ namespace TeretanaAPI.Controllers
                 emailMessage.From.Add(new MailboxAddress("Vas TIM TERETANA NFC", "teretananfc@gmail.com"));
                 emailMessage.To.Add(new MailboxAddress(email));
                 emailMessage.Subject = "Vasa kartica uskoro istice";
-                emailMessage.Body = new TextPart("plain") { Text = "Dragi nasi korisnici, produzite svoju karticu!" };
+                emailMessage.Body = new TextPart("plain") {Text = "Dragi nasi korisnici, produzite svoju karticu!"};
 
                 using (var client = new SmtpClient())
-                {                   
+                {
                     client.ServerCertificateValidationCallback = (s, c, h, e) => true;
                     client.Connect("smtp.gmail.com", 587, false);
 
@@ -177,12 +188,10 @@ namespace TeretanaAPI.Controllers
 
                     client.Send(emailMessage);
                     client.Disconnect(true);
-
                 }
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }

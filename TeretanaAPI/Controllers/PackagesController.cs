@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TeretanaAPI.DataBaseManipulation;
 using TeretanaAPI.Models;
 
 namespace TeretanaAPI.Controllers
@@ -29,19 +28,28 @@ namespace TeretanaAPI.Controllers
 
         // GET: api/Packages/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetPackages([FromRoute] int id)
+        public IActionResult GetPackages([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
+            string[] inputParamNames =
+            {
+                "PackageId"
+            };
+            object[] inputParamValues =
+            {
+                id
+            };
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
+            var spName = "sp_get_Package_by_Id";
+            var packages = DataReaderExtensions.ExecuteStoredProcedure(_context, spName, inputParamNames,
+                inputParamValues, outputParamNames, outputParamValues);
 
-            var packages = await _context.Packages.SingleOrDefaultAsync(m => m.PackageId == id);
+            //var packages = await _context.Packages.SingleOrDefaultAsync(m => m.PackageId == id);
 
             if (packages == null)
-            {
                 return NotFound();
-            }
 
             return Ok(packages);
         }
@@ -51,14 +59,10 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> PutPackages([FromRoute] int id, [FromBody] Packages packages)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != packages.PackageId)
-            {
                 return BadRequest();
-            }
 
             _context.Entry(packages).State = EntityState.Modified;
 
@@ -69,13 +73,8 @@ namespace TeretanaAPI.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!PackagesExists(id))
-                {
                     return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -83,31 +82,39 @@ namespace TeretanaAPI.Controllers
 
         // POST: api/Packages
         [HttpPost]
-        public async Task<IActionResult> PostPackages([FromBody] Packages packages)
+        public IActionResult PostPackages([FromBody] Packages packages)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            _context.Packages.Add(packages);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (PackagesExists(packages.PackageId))
-                {
-                    return new StatusCodeResult(StatusCodes.Status409Conflict);
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            //_context.Packages.Add(packages);
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateException)
+            //{
+            //    if (PackagesExists(packages.PackageId))
+            //        return new StatusCodeResult(StatusCodes.Status409Conflict);
+            //    throw;
+            //}
 
-            return CreatedAtAction("GetPackages", new { id = packages.PackageId }, packages);
+            string[] inputParamNames =
+            {
+                "PackageName", "PackageDescription", "IsActive"
+            };
+            object[] inputParamValues =
+            {
+                packages.PackageName, packages.PackageDescription, packages.IsActive, packages.DateCreated
+            };
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
+            var spName = "sp_insert_new_Package";
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, spName, inputParamNames,
+                inputParamValues, outputParamNames, outputParamValues);
+            var re = new JsonResult(outputParamValues);
+            return Ok(re);
+            //return CreatedAtAction("GetPackages", new {id = packages.PackageId}, packages);
         }
 
         // DELETE: api/Packages/5
@@ -115,15 +122,11 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> DeletePackages([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var packages = await _context.Packages.SingleOrDefaultAsync(m => m.PackageId == id);
             if (packages == null)
-            {
                 return NotFound();
-            }
 
             _context.Packages.Remove(packages);
             await _context.SaveChangesAsync();

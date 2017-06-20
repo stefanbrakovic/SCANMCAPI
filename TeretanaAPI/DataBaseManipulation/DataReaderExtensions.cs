@@ -41,6 +41,7 @@ namespace TeretanaAPI.DataBaseManipulation
             return null;
         }
 
+
         public static object[] ExecuteStoredProcedure(DbContext context, string spName, string[] inputParamNames,
             object[] inputParamValues, string[] outputParamNames, object[] outputParamValues)
         {

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TeretanaAPI.Constants;
 using TeretanaAPI.DataBaseManipulation;
 using TeretanaAPI.Models;
 
@@ -43,7 +44,7 @@ namespace TeretanaAPI.Controllers
 
         // PUT: api/Genders/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutGenders([FromRoute] int id, [FromBody] Genders genders)
+        public IActionResult PutGenders([FromRoute] int id, [FromBody] Genders genders)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -51,20 +52,35 @@ namespace TeretanaAPI.Controllers
             if (id != genders.GenderId)
                 return BadRequest();
 
-            _context.Entry(genders).State = EntityState.Modified;
+            //_context.Entry(genders).State = EntityState.Modified;
 
-            try
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!GendersExists(id))
+            //        return NotFound();
+            //    throw;
+            //}
+            string[] inputParamNames =
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
+                "GenderId", "Gender"
+            };
+            object[] inputParamValues =
             {
-                if (!GendersExists(id))
-                    return NotFound();
-                throw;
-            }
+                genders.GenderId, genders.Gender
+            };
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
 
-            return NoContent();
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context,
+                StoredProcedureNames.UpdateGenderByDenderId, inputParamNames, inputParamValues, outputParamNames,
+                outputParamValues);
+            var re = new JsonResult(outParams);
+            return Ok(re);
+            //return NoContent();
         }
 
         // POST: api/Genders
@@ -93,13 +109,13 @@ namespace TeretanaAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var spName = "sp_delete_Gender";
             string[] inputParamNames = {"GenderName"};
             object[] inputParamValues = {GenderName};
             string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
             object[] outputParamValues = {0, ""};
 
-            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, spName, inputParamNames,
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, StoredProcedureNames.DeleteGenderById,
+                inputParamNames,
                 inputParamValues, outputParamNames, outputParamValues);
             var re = new JsonResult(outputParamValues);
             return Ok(re);
