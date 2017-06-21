@@ -18,7 +18,7 @@ GO
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-CREATE PROCEDURE sp_create_Subscription
+ALTER PROCEDURE sp_create_Subscription
 	-- Add the parameters for the stored procedure here
 	@UserId int,
 	@PackageId int,

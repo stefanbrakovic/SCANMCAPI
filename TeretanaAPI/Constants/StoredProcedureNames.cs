@@ -11,8 +11,8 @@
         public static string UpdateUserByMail = "sp_update_User_by_Mail";
         public static string UpdateUserTypeById = "sp_update_UserType_by_Id";
         public static string CreateNewSubscription = "sp_create_Subscription";
-
         public static string GetUsesByUserId = "sp_get_usage_by_UserId";
         public static string CreateNewUsage = "sp_create_Usage";
+        public static string DeleteServiceById = "sp_delete_Service_by_ServiceId";
     }
 }

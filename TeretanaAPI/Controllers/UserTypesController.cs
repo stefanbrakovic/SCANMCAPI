@@ -57,7 +57,7 @@ namespace TeretanaAPI.Controllers
                 return BadRequest(ModelState);
 
             if (id != userTypes.UserTypeId)
-                return BadRequest();
+                return BadRequest("User id does not match");
 
 
             string[] inputParamNames =

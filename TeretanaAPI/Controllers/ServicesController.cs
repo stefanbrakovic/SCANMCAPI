@@ -28,34 +28,32 @@ namespace TeretanaAPI.Controllers
         }
 
         // GET: api/Services/5
-        [HttpGet("{id}")]
-        public IActionResult GetServices([FromRoute] string serviceName)
+        [HttpGet("{serviceName}")]
+        public async Task<IActionResult> GetServices([FromRoute] string serviceName)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            //var services = await _context.Services.SingleOrDefaultAsync(m => m.ServiceId == id);
+            var services = await _context.Services.SingleOrDefaultAsync(m => m.ServiceName.Equals(serviceName));
 
-            //if (services == null)
+            if (services == null)
+                return NotFound();
+            //string[] inputParamNames =
             //{
-            //    return NotFound();
-            //}
-            string[] inputParamNames =
-            {
-                "ServiceName"
-            };
-            object[] inputParamValues =
-            {
-                serviceName
-            };
-            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
-            object[] outputParamValues = {0, ""};
+            //    "ServiceName"
+            //};
+            //object[] inputParamValues =
+            //{
+            //    serviceName
+            //};
+            //string[] outputParamNames = {"ResultSet","ErrorCode", "ErrorMessage"};
+            //object[] outputParamValues = {,0, ""};
 
-            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, StoredProcedureNames.GetServiceByName,
-                inputParamNames,
-                inputParamValues, outputParamNames, outputParamValues);
-            var re = new JsonResult(outputParamValues);
-            return Ok(re);
+            //var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, StoredProcedureNames.GetServiceByName,
+            //    inputParamNames,
+            //    inputParamValues, outputParamNames, outputParamValues);
+            //var re = new JsonResult(outParams);
+            return Ok(services);
         }
 
         // PUT: api/Services/5
@@ -115,7 +113,7 @@ namespace TeretanaAPI.Controllers
             object[] inputParamValues =
             {
                 services.ServiceName, services.ServiceDescription, services.IsActive,
-                services.ServicePrice.FirstOrDefault(x => x.Price >= 0)
+                services.ServicePrice.FirstOrDefault(x => x.Price >= 0).Price
             };
             string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
             object[] outputParamValues = {0, ""};
@@ -151,10 +149,28 @@ namespace TeretanaAPI.Controllers
             if (services == null)
                 return NotFound();
 
-            _context.Services.Remove(services);
-            await _context.SaveChangesAsync();
+            string[] inputParamNames =
+            {
+                "ServiceId"
+            };
+            object[] inputParamValues =
+            {
+                id
+            };
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
 
-            return Ok(services);
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context,
+                StoredProcedureNames.DeleteServiceById, inputParamNames,
+                inputParamValues, outputParamNames, outputParamValues);
+            var re = new JsonResult(outParams);
+            return Ok(re);
+
+
+            //_context.Services.Remove(services);
+            //await _context.SaveChangesAsync();
+
+            //return Ok(services);
         }
 
         private bool ServicesExists(int id)

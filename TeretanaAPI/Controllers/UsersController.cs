@@ -39,7 +39,8 @@ namespace TeretanaAPI.Controllers
 
             var users = await _context.Users.SingleOrDefaultAsync(m => m.CardNumber == cardNumber);
             var userProfile = await _context.UserProfile.SingleOrDefaultAsync(m => m.CardNumber == cardNumber);
-
+            if (userProfile == null)
+                return Ok(Json("User has no profile"));
             if (users == null)
                 return NotFound();
 
@@ -66,7 +67,7 @@ namespace TeretanaAPI.Controllers
         }
 
         // PUT: api/Users/5
-        [HttpPut("{id}")]
+        [HttpPut("{userMail}")]
         public IActionResult PutUsers([FromRoute] string userMail, [FromBody] Users users)
         {
             if (!ModelState.IsValid)
