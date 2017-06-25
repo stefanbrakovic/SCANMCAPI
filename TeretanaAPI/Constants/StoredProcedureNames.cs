@@ -14,5 +14,7 @@
         public static string GetUsesByUserId = "sp_get_usage_by_UserId";
         public static string CreateNewUsage = "sp_create_Usage";
         public static string DeleteServiceById = "sp_delete_Service_by_ServiceId";
+
+        public static string LogIn = "sp_login";
     }
 }
