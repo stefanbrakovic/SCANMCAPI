@@ -115,7 +115,7 @@ namespace TeretanaAPI.Controllers
 
         // POST: api/Users
         [HttpPost]
-        public IActionResult PostUsers([FromBody] Users users)
+        public IActionResult PostUsers([FromBody]Users users)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

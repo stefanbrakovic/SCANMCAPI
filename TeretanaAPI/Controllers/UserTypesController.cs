@@ -150,7 +150,10 @@ namespace TeretanaAPI.Controllers
 
             var spName = "sp_create_new_UserType";
             string[] inputParamNames = {"TypeName", "TypeDescription"};
-            object[] inputParamValues = {userTypes.TypeName, userTypes.TypeDescription};
+            object[] inputParamValues =
+            {
+                userTypes.TypeName, userTypes.TypeDescription
+            };
             string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
             object[] outputParamValues = {0, ""};
 
