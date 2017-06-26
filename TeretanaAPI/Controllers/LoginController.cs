@@ -1,13 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeretanaAPI.Models;
-using TeretanaAPI.DataBaseManipulation;
-using TeretanaAPI.Constants;
 
 namespace TeretanaAPI.Controllers
 {
@@ -34,17 +30,12 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> GetUsers([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var users = await _context.Users.SingleOrDefaultAsync(m => m.UserId == id);
 
             if (users == null)
-            {
                 return NotFound();
-            }
-
 
 
             return Ok(users);
@@ -55,14 +46,10 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> PutUsers([FromRoute] int id, [FromBody] Users users)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != users.UserId)
-            {
                 return BadRequest();
-            }
 
             _context.Entry(users).State = EntityState.Modified;
 
@@ -73,13 +60,8 @@ namespace TeretanaAPI.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!UsersExists(id))
-                {
                     return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -87,34 +69,43 @@ namespace TeretanaAPI.Controllers
 
         // POST: api/Login
         [HttpPost]
-        public async Task<IActionResult> PostUsers([FromBody] Users users)
+        public IEnumerable<Users> PostUsers([FromBody] Users users)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+                return null;
             string[] inputParamNames =
-           {
-                "Mail","Password"
+            {
+                "Mail", "Password"
             };
             object[] inputParamValues =
             {
                 users.Mail, users.UserPassword
             };
-            string[] outputParamNames = { "UserType", "ErrorCode", "ErrorMessage" };
-            object[] outputParamValues = { -1, 0, "" };
+            //string[] outputParamNames = { "UserType", "ErrorCode", "ErrorMessage" };
+            //object[] outputParamValues = { -1, 0, "" };
 
-            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, StoredProcedureNames.LogIn, inputParamNames,
-                inputParamValues, outputParamNames, outputParamValues);
-            var re = new JsonResult(outputParamValues);
+            //var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, StoredProcedureNames.LogIn, inputParamNames,
+            //    inputParamValues, outputParamNames, outputParamValues);
+            //var re = new JsonResult(outputParamValues);
 
-            if (outParams[0].Equals("-1"))
-            {
-                return BadRequest("Invalid email or password!");
-            }
+            var user = _context.Set<Users>().FromSql("sp_login_select @Mail = {0}, @Password = {1}", users.Mail,
+                users.UserPassword);
+
+            //try
+            //{
+            //    if ((Int32.Parse(outParams[0].ToString()) < 0))
+            //    {
+            //        return Ok(out)//  BadRequest("Invalid email or password!");
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine(ex);
+            //    throw;
+            //}
 
 
-            return Ok(outParams[0]);
+            return user;
             //_context.Users.Add(users);
             //await _context.SaveChangesAsync();
 
@@ -126,15 +117,11 @@ namespace TeretanaAPI.Controllers
         public async Task<IActionResult> DeleteUsers([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var users = await _context.Users.SingleOrDefaultAsync(m => m.UserId == id);
             if (users == null)
-            {
                 return NotFound();
-            }
 
             _context.Users.Remove(users);
             await _context.SaveChangesAsync();

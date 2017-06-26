@@ -37,12 +37,6 @@ namespace TeretanaAPI.Models
                 entity.Property(e => e.Discount)
                     .HasColumnType("decimal")
                     .HasDefaultValueSql("0.00");
-
-                entity.HasOne(d => d.ContainsNavigation)
-                    .WithOne(p => p.InverseContainsNavigation)
-                    .HasForeignKey<Contains>(d => d.ContainsId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("FK_Contains_Contains");
             });
 
             modelBuilder.Entity<Genders>(entity =>
@@ -58,13 +52,16 @@ namespace TeretanaAPI.Models
             modelBuilder.Entity<Packages>(entity =>
             {
                 entity.HasKey(e => e.PackageId)
-                    .HasName("PK__Packages__322035CCFDD78633");
+                    .HasName("PK__Packages__322035CC28ECDB8F");
 
                 entity.Property(e => e.DateCreated)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.IsActive).HasDefaultValueSql("1");
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasColumnType("binary(1)")
+                    .HasDefaultValueSql("1");
 
                 entity.Property(e => e.PackageDescription)
                     .HasMaxLength(250)
@@ -154,7 +151,7 @@ namespace TeretanaAPI.Models
             modelBuilder.Entity<UserProfile>(entity =>
             {
                 entity.HasIndex(e => e.CardNumber)
-                    .HasName("UQ__UserProf__A4E9FFE9426A8E72")
+                    .HasName("UQ__UserProf__A4E9FFE9B1A6D882")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Mail)
@@ -203,11 +200,17 @@ namespace TeretanaAPI.Models
                 entity.HasKey(e => e.UserId)
                     .HasName("PK__Users__1788CC4C027D74C6");
 
+                entity.HasIndex(e => e.CardNumber)
+                    .HasName("UQ__Users__4CD3FAA21917D4A3")
+                    .IsUnique();
+
                 entity.HasIndex(e => e.Mail)
                     .HasName("UQ__Users__2724B2D16C5A912B")
                     .IsUnique();
 
-                entity.Property(e => e.CardNumber).HasMaxLength(256);
+                entity.Property(e => e.CardNumber)
+                    .IsRequired()
+                    .HasMaxLength(256);
 
                 entity.Property(e => e.City).HasMaxLength(50);
 
@@ -241,7 +244,7 @@ namespace TeretanaAPI.Models
             modelBuilder.Entity<Uses>(entity =>
             {
                 entity.HasKey(e => e.UsageId)
-                    .HasName("PK__Uses__29B197208A2CB3BC");
+                    .HasName("PK__Uses__29B197203CA8E4DB");
 
                 entity.Property(e => e.DateFrom).HasColumnType("datetime");
 

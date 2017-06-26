@@ -16,5 +16,6 @@
         public static string DeleteServiceById = "sp_delete_Service_by_ServiceId";
 
         public static string LogIn = "sp_login";
+        public static string CreateNewContains = "sp_create_new_contains";
     }
 }

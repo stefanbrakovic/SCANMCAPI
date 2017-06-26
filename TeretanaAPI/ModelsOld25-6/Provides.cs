@@ -3,15 +3,15 @@ using System.Collections.Generic;
 
 namespace TeretanaAPI.Models
 {
-    public partial class Subscribed
+    public partial class Provides
     {
-        public int SubscribedId { get; set; }
+        public int ProvidesId { get; set; }
+        public int UserId { get; set; }
+        public int ServiceId { get; set; }
         public DateTime DateFrom { get; set; }
         public DateTime DateTo { get; set; }
-        public int UserId { get; set; }
-        public int PackageId { get; set; }
 
-        public virtual Packages Package { get; set; }
+        public virtual Services Service { get; set; }
         public virtual Users User { get; set; }
     }
 }

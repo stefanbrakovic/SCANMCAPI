@@ -51,7 +51,7 @@ namespace TeretanaAPI.Controllers
 
             if (numberOfUsedTermins < numberOfPaidTermins)
             {
-                if ((dateTo - DateTime.Now).TotalDays < 20) //SAMO DRUGI DEO IF-a CE BTI USLOV KASNIJE
+                if (((DateTime) dateTo - DateTime.Now).TotalDays < 20) //SAMO DRUGI DEO IF-a CE BTI USLOV KASNIJE
                     try
                     {
                         SendEmail(email);
@@ -61,9 +61,9 @@ namespace TeretanaAPI.Controllers
                         throw;
                     }
 
-                return Ok(true);
+                return Ok(users);
             }
-            return Ok(false); //OVAJ DEO NISAM SIGURNA
+            return Ok(users); //OVAJ DEO NISAM SIGURNA
         }
 
         // PUT: api/Users/5
@@ -115,7 +115,7 @@ namespace TeretanaAPI.Controllers
 
         // POST: api/Users
         [HttpPost]
-        public IActionResult PostUsers([FromBody]Users users)
+        public IActionResult PostUsers([FromBody] Users users)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

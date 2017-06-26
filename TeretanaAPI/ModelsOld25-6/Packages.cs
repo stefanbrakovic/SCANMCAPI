@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TeretanaAPI.Models
 {
-    public partial class Packages
+    public class Packages
     {
         public Packages()
         {
@@ -13,7 +13,7 @@ namespace TeretanaAPI.Models
         public int PackageId { get; set; }
         public string PackageName { get; set; }
         public string PackageDescription { get; set; }
-        public bool IsActive { get; set; }
+        public int IsActive { get; set; }
         public DateTime? DateCreated { get; set; }
 
         public virtual ICollection<Subscribed> Subscribed { get; set; }
