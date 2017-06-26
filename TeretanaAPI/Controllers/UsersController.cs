@@ -124,12 +124,12 @@ namespace TeretanaAPI.Controllers
             string[] inputParamNames =
             {
                 "FirstName", "LastName", "Telephone", "Mail", "UserPassword", "UserTypeId", "GenderId", "DateOfBirth",
-                "Street", "City", "StreetNumber"
+                "Street", "City", "StreetNumber", "CardNumber"
             };
             object[] inputParamValues =
             {
                 users.FirstName, users.LastName, users.Telephone, users.Mail, users.UserPassword, users.UserTypeId,
-                users.GenderId, users.DateOfBirth, users.Street, users.City, users.StreetNumber
+                users.GenderId, users.DateOfBirth, users.Street, users.City, users.StreetNumber, users.CardNumber
             };
             string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
             object[] outputParamValues = {0, ""};
