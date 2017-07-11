@@ -38,31 +38,32 @@ namespace TeretanaAPI.Controllers
                 return BadRequest(ModelState);
 
             var users = await _context.Users.SingleOrDefaultAsync(m => m.CardNumber == cardNumber);
-            var userProfile = await _context.UserProfile.SingleOrDefaultAsync(m => m.CardNumber == cardNumber);
-            if (userProfile == null)
-                return Ok(Json("User has no profile"));
+
+            //var userProfile = await _context.UserProfile.SingleOrDefaultAsync(m => m.CardNumber == cardNumber);
+            //if (userProfile == null)
+            //    return Ok(Json("User has no profile"));
             if (users == null)
                 return NotFound();
 
-            var email = userProfile.Mail;
-            var numberOfUsedTermins = userProfile.NumberOfUsedTermins;
-            var dateTo = userProfile.DateTo;
-            var numberOfPaidTermins = 12; //OVOCE SE VEROVATNO ISTO CITATI IZ BAZE
+            //var email = userProfile.Mail;
+            //var numberOfUsedTermins = userProfile.NumberOfUsedTermins;
+            //var dateTo = userProfile.DateTo;
+            //var numberOfPaidTermins = 12; //OVOCE SE VEROVATNO ISTO CITATI IZ BAZE
 
-            if (numberOfUsedTermins < numberOfPaidTermins)
-            {
-                if (((DateTime) dateTo - DateTime.Now).TotalDays < 20) //SAMO DRUGI DEO IF-a CE BTI USLOV KASNIJE
-                    try
-                    {
-                        SendEmail(email);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw;
-                    }
+            //if (numberOfUsedTermins < numberOfPaidTermins)
+            //{
+            //    if (((DateTime) dateTo - DateTime.Now).TotalDays < 20) //SAMO DRUGI DEO IF-a CE BTI USLOV KASNIJE
+            //        try
+            //        {
+            //            SendEmail(email);
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            throw;
+            //        }
 
-                return Ok(users);
-            }
+            //    return Ok(users);
+            //}
             return Ok(users); //OVAJ DEO NISAM SIGURNA
         }
 

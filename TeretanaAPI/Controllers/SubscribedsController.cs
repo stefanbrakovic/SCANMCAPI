@@ -29,17 +29,39 @@ namespace TeretanaAPI.Controllers
 
         // GET: api/Subscribeds/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSubscribed([FromRoute] int id)
+        public IEnumerable<Subscribed> GetSubscribed([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var subs = _context.Subscribed.Where(m => m.UserId == id);
+            if (subs == null)
+                return null;
 
-            var subscribed = await _context.Subscribed.SingleOrDefaultAsync(m => m.UserId == id);
+            //var paketi = _context.Packages;
+            //foreach (var sub in subs)
+            //foreach (var pak in paketi)
+            //    if (pak.PackageId == sub.PackageId)
+            //    {
+            //        sub.Package = pak;
+            //        break;
+            //    }
 
-            if (subscribed == null)
-                return NotFound();
+            return subs;
+            // var subscribed = await _context.Subscribed.SingleOrDefaultAsync(m => m.UserId == id);
 
-            return Ok(subscribed);
+            /* string[] inputParamNames =
+                 {
+                 "UserId"
+             };
+             object[] inputParamValues =
+             {
+                 id
+             };
+             string[] outputParamNames = { "ErrorCode", "ErrorMessage" };
+             object[] outputParamValues = { 0, "" };
+ 
+             var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, StoredProcedureNames.GetAllSubByUserId, inputParamNames,
+                 inputParamValues, outputParamNames, outputParamValues);
+             var re = new JsonResult(outputParamValues);
+             return Ok(re);*/
         }
 
         // PUT: api/Subscribeds/5

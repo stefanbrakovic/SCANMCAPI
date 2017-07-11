@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace TeretanaAPI.Models
 {
-    public class TeretanaContext : DbContext
+    public partial class TeretanaContext : DbContext
     {
         public virtual DbSet<Contains> Contains { get; set; }
         public virtual DbSet<Genders> Genders { get; set; }
@@ -19,20 +20,16 @@ namespace TeretanaAPI.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-<<<<<<< HEAD
             #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-            optionsBuilder.UseSqlServer(@"Server=LAPTOP-ID9L15EC;Database=Teretana;Trusted_Connection=True;");
-=======
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-            optionsBuilder.UseSqlServer(
-                @"Server=DESKTOP-V0D3HC8;Database=Teretana;Trusted_Connection=True;MultipleActiveResultSets=true;");
->>>>>>> 56b005fcef6de72d068f4efe9f734687fbacf3b7
+            optionsBuilder.UseSqlServer(@"Server=DESKTOP-V0D3HC8;Database=Teretana;Trusted_Connection=True;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Contains>(entity =>
             {
+                entity.Property(e => e.ContainsId).ValueGeneratedNever();
+
                 entity.Property(e => e.DateAdded)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("getdate()");
@@ -41,17 +38,11 @@ namespace TeretanaAPI.Models
                     .HasColumnType("decimal")
                     .HasDefaultValueSql("0.00");
 
-                entity.HasOne(d => d.Package)
-                    .WithMany(p => p.Contains)
-                    .HasForeignKey(d => d.PackageId)
+                entity.HasOne(d => d.ContainsNavigation)
+                    .WithOne(p => p.InverseContainsNavigation)
+                    .HasForeignKey<Contains>(d => d.ContainsId)
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("FK_Contains_Packages");
-
-                entity.HasOne(d => d.Service)
-                    .WithMany(p => p.Contains)
-                    .HasForeignKey(d => d.ServiceId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("FK_Contains_Services");
+                    .HasConstraintName("FK_Contains_Contains");
             });
 
             modelBuilder.Entity<Genders>(entity =>
@@ -89,6 +80,18 @@ namespace TeretanaAPI.Models
                 entity.Property(e => e.DateFrom).HasColumnType("datetime");
 
                 entity.Property(e => e.DateTo).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Service)
+                    .WithMany(p => p.Provides)
+                    .HasForeignKey(d => d.ServiceId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("FK_Provides_Services");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Provides)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("FK_Provides_Users");
             });
 
             modelBuilder.Entity<ServicePrice>(entity =>
@@ -139,7 +142,7 @@ namespace TeretanaAPI.Models
                     .WithMany(p => p.Subscribed)
                     .HasForeignKey(d => d.PackageId)
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("FK_Subscribed_Packages");
+                    .HasConstraintName("FK_Subscribed_Package");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Subscribed)
@@ -181,12 +184,6 @@ namespace TeretanaAPI.Models
                     .HasMaxLength(50);
 
                 entity.Property(e => e.Telephone).HasMaxLength(25);
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.UserProfile)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("FK_UserProfile_Users");
             });
 
             modelBuilder.Entity<UserTypes>(entity =>
@@ -239,18 +236,6 @@ namespace TeretanaAPI.Models
                 entity.Property(e => e.UserPassword)
                     .IsRequired()
                     .HasMaxLength(500);
-
-                entity.HasOne(d => d.Gender)
-                    .WithMany(p => p.Users)
-                    .HasForeignKey(d => d.GenderId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("FK_Users_Genders");
-
-                entity.HasOne(d => d.UserType)
-                    .WithMany(p => p.Users)
-                    .HasForeignKey(d => d.UserTypeId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("FK_Users_UserTypes");
             });
 
             modelBuilder.Entity<Uses>(entity =>
@@ -261,12 +246,6 @@ namespace TeretanaAPI.Models
                 entity.Property(e => e.DateFrom).HasColumnType("datetime");
 
                 entity.Property(e => e.DateTo).HasColumnType("datetime");
-
-                entity.HasOne(d => d.Service)
-                    .WithMany(p => p.Uses)
-                    .HasForeignKey(d => d.ServiceId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("FK_Uses_Services");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Uses)

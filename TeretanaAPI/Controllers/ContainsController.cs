@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeretanaAPI.Constants;
@@ -79,21 +77,21 @@ namespace TeretanaAPI.Controllers
 
 
             string[] inputParamNames =
-                {
-                "ServiceId","PackageId","Discount"
+            {
+                "ServiceId", "PackageId", "Discount", "Count"
             };
             object[] inputParamValues =
             {
-                contains.ServiceId, contains.PackageId, contains.Discount
+                contains.ServiceId, contains.PackageId, contains.Discount, contains.Count
             };
-            string[] outputParamNames = { "ErrorCode", "ErrorMessage" };
-            object[] outputParamValues = { 0, "" };
+            string[] outputParamNames = {"ErrorCode", "ErrorMessage"};
+            object[] outputParamValues = {0, ""};
 
-            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context, StoredProcedureNames.CreateNewContains, inputParamNames,
+            var outParams = DataReaderExtensions.ExecuteStoredProcedure(_context,
+                StoredProcedureNames.CreateNewContains, inputParamNames,
                 inputParamValues, outputParamNames, outputParamValues);
             var re = new JsonResult(outputParamValues);
             return Ok(re);
-
 
 
             //_context.Contains.Add(contains);

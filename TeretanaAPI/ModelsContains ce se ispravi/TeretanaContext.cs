@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace TeretanaAPI.Models
 {
-    public class TeretanaContext : DbContext
+    public partial class TeretanaContext : DbContext
     {
         public virtual DbSet<Contains> Contains { get; set; }
         public virtual DbSet<Genders> Genders { get; set; }
@@ -19,14 +20,8 @@ namespace TeretanaAPI.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-<<<<<<< HEAD
             #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-            optionsBuilder.UseSqlServer(@"Server=LAPTOP-ID9L15EC;Database=Teretana;Trusted_Connection=True;");
-=======
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-            optionsBuilder.UseSqlServer(
-                @"Server=DESKTOP-V0D3HC8;Database=Teretana;Trusted_Connection=True;MultipleActiveResultSets=true;");
->>>>>>> 56b005fcef6de72d068f4efe9f734687fbacf3b7
+            optionsBuilder.UseSqlServer(@"Server=DESKTOP-V0D3HC8;Database=Teretana;Trusted_Connection=True;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

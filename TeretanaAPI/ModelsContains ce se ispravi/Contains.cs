@@ -10,7 +10,6 @@ namespace TeretanaAPI.Models
         public decimal Discount { get; set; }
         public int ServiceId { get; set; }
         public int PackageId { get; set; }
-        public int Count { get; set; }
 
         public virtual Packages Package { get; set; }
         public virtual Services Service { get; set; }
