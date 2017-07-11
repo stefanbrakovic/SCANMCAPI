@@ -7,7 +7,6 @@ namespace TeretanaAPI.Models
     {
         public Packages()
         {
-            Contains = new HashSet<Contains>();
             Subscribed = new HashSet<Subscribed>();
         }
 
@@ -17,7 +16,6 @@ namespace TeretanaAPI.Models
         public bool IsActive { get; set; }
         public DateTime? DateCreated { get; set; }
 
-        public virtual ICollection<Contains> Contains { get; set; }
         public virtual ICollection<Subscribed> Subscribed { get; set; }
     }
 }

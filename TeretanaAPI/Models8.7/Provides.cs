@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace TeretanaAPI.Models
 {
-    public partial class Uses
+    public partial class Provides
     {
-        public int UsageId { get; set; }
+        public int ProvidesId { get; set; }
         public int UserId { get; set; }
         public int ServiceId { get; set; }
         public DateTime DateFrom { get; set; }

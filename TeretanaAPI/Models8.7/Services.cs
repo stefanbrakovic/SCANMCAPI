@@ -7,9 +7,8 @@ namespace TeretanaAPI.Models
     {
         public Services()
         {
-            Contains = new HashSet<Contains>();
+            Provides = new HashSet<Provides>();
             ServicePrice = new HashSet<ServicePrice>();
-            Uses = new HashSet<Uses>();
         }
 
         public int ServiceId { get; set; }
@@ -18,8 +17,7 @@ namespace TeretanaAPI.Models
         public byte IsActive { get; set; }
         public DateTime? DateCreated { get; set; }
 
-        public virtual ICollection<Contains> Contains { get; set; }
+        public virtual ICollection<Provides> Provides { get; set; }
         public virtual ICollection<ServicePrice> ServicePrice { get; set; }
-        public virtual ICollection<Uses> Uses { get; set; }
     }
 }

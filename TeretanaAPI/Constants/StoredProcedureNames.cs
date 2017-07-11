@@ -17,5 +17,6 @@
 
         public static string LogIn = "sp_login";
         public static string CreateNewContains = "sp_create_new_contains";
+        public static string GetAllSubByUserId = "sp_select_all_Sub_by_UserId";
     }
 }

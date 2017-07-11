@@ -7,8 +7,8 @@ namespace TeretanaAPI.Models
     {
         public Users()
         {
+            Provides = new HashSet<Provides>();
             Subscribed = new HashSet<Subscribed>();
-            UserProfile = new HashSet<UserProfile>();
             Uses = new HashSet<Uses>();
         }
 
@@ -27,10 +27,8 @@ namespace TeretanaAPI.Models
         public string StreetNumber { get; set; }
         public string CardNumber { get; set; }
 
+        public virtual ICollection<Provides> Provides { get; set; }
         public virtual ICollection<Subscribed> Subscribed { get; set; }
-        public virtual ICollection<UserProfile> UserProfile { get; set; }
         public virtual ICollection<Uses> Uses { get; set; }
-        public virtual Genders Gender { get; set; }
-        public virtual UserTypes UserType { get; set; }
     }
 }

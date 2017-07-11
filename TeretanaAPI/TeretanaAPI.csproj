@@ -6,12 +6,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models8.7\**" />
+    <Compile Remove="ModelsContains ce se ispravi\**" />
     <Compile Remove="ModelsOld25-6\**" />
     <Compile Remove="ModelsOld\**" />
+    <Content Remove="Models8.7\**" />
+    <Content Remove="ModelsContains ce se ispravi\**" />
     <Content Remove="ModelsOld25-6\**" />
     <Content Remove="ModelsOld\**" />
+    <EmbeddedResource Remove="Models8.7\**" />
+    <EmbeddedResource Remove="ModelsContains ce se ispravi\**" />
     <EmbeddedResource Remove="ModelsOld25-6\**" />
     <EmbeddedResource Remove="ModelsOld\**" />
+    <None Remove="Models8.7\**" />
+    <None Remove="ModelsContains ce se ispravi\**" />
     <None Remove="ModelsOld25-6\**" />
     <None Remove="ModelsOld\**" />
   </ItemGroup>
